@@ -5,6 +5,8 @@ import {getStorage} from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 // Import the functions you need from the SDKs you need
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -19,10 +21,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app,{
-  experimentalForceLongPolling: true
-
-});
+console.log("App initialized", app.name);
+const db = getFirestore(app);
+console.log("Database initialized", db);
 const storage = getStorage(app);
-console.log(app,db);
+console.log("Storage initialized", storage);
+
 export {app,db,storage}

@@ -1,32 +1,49 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {db, storage } from '../firebase';
-import { addDoc,collection,serverTimestamp, updateDoc,arrayUnion,doc } from '@firebase/firestore';
+import { addDoc,collection,serverTimestamp, updateDoc,arrayUnion,doc, getDocs } from '@firebase/firestore';
 import {ref, getDownloadURL, uploadBytes} from "@firebase/storage"
 const DropZone = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const captionRef = useRef(null)
-  const uploadSave = async () => {
-    const docRef = await addDoc(collection(db, "saves"), {
-        caption: captionRef.current.value,
-        timestamp: serverTimestamp(),
-      });
-      console.log("console",docRef)
+    const uploadSave = async () => {
+      try {
+          const clction = collection(db, "saves");
+          console.log("collection", clction.path);
 
-      await Promise.all(
-        selectedImages.map(image=>{
-            const imageRef = ref(storage, `saves${docRef.id}/${image.path}`);
-            uploadBytes(imageRef, image,"data_url".then(async()=>{
-                const downlaodURL = await getDownloadURL(imageRef)
-                console.log("download",downlaodURL)
-                await updateDoc(doc(db,"saves", docRef.id),{
-                    image: arrayUnion(downlaodURL)
-                })
-            }))
-        })
-      )
-   captionRef.current.value=''
-   setSelectedImages([])
+          // Get docs
+          const querySnapshot = await getDocs(collection(db, 'saves'));
+          console.log("querySnapshot", querySnapshot);
+
+  
+          // Get document reference
+          const docRef = await addDoc(clction, {
+              caption: captionRef.current.value,
+              createdAt: serverTimestamp(),
+          });
+          console.log("Document written with ID: ", docRef.id);
+  
+          await Promise.all(
+            selectedImages.map(async (image) => {
+                try {
+                    const imageRef = ref(storage, `saves${docRef.id}/${image.path}`);
+                    await uploadBytes(imageRef, image, "data_url");
+                    const downloadURL = await getDownloadURL(imageRef);
+                    console.log("downloadURL", downloadURL);
+                    await updateDoc(doc(db, "saves", docRef.id), {
+                        image: arrayUnion(downloadURL),
+                    });
+                } catch (imageError) {
+                    console.error("Error uploading image:", imageError);
+                }
+            })
+        );
+
+        captionRef.current.value = '';
+        setSelectedImages([]);
+    } catch (error) {
+        console.error("Error saving document:", error);
+      }
   };
   
 
@@ -56,7 +73,6 @@ const DropZone = () => {
       <img src={file.preview} style={{ width: '200px' }} alt="preview" />
     </div>
   ));
-
   return (
     <div>
       <div {...getRootProps()}>
@@ -70,4 +86,4 @@ const DropZone = () => {
   );
 };
 
-export default DropZone;
+export default DropZone;
