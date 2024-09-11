@@ -19,7 +19,7 @@ const DropZone = () => {
           // Get document reference
           const docRef = await addDoc(clction, {
               caption: captionRef.current.value,
-              createdAt: serverTimestamp(),
+              timeStamp: serverTimestamp(),
           });
           console.log("Document written with ID: ", docRef.id);
   
@@ -62,7 +62,6 @@ const DropZone = () => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   useEffect(() => {
-    // Cleanup function to revoke the data URLs to avoid memory leaks
     return () => {
       selectedImages.forEach((file) => URL.revokeObjectURL(file.preview));
     };
