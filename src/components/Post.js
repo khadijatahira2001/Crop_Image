@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { collection,onSnapshot, orderBy,query } from '@firebase/firestore';
 import { db } from '../firebase';
+import moment from 'moment';
 const Post = () => {
     const [posts, setposts] = useState([])
     const postImages = (save) => {
       if (!save.image || save.image.length === 0) return null;
   
       const postImages = save.image.map((file, index) => (
-        <div key={index} className="relative w-full h-96">
+        <div key={index} className="relative w-full h-full">
           <img src={file} alt="Post" className="object-cover w-full h-full" />
         </div>
       ));
@@ -27,14 +28,16 @@ const Post = () => {
     <div>
       
       {
-        posts.map(save=><div key={save.id}>
+        posts.map(save=><div key={save.id}
+         className='bg-white rounded-lg shadow-xl p-8 w-1/2 m-auto mb-4'>
             <div className='text-lg'>
                 {save.caption}
             </div>
             <div className='flex space-x-3'>
               {postImages(save)}
             </div>
-        </div>)
+        </div>
+        )
       }
     </div>
   )
